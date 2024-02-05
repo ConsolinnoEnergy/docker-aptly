@@ -1,3 +1,4 @@
+# Copyright 2024 Leonid Verhovskij
 # Copyright 2018-2020 Artem B. Smirnov
 # Copyright 2018 Jon Azpiazu
 # Copyright 2016 Bryan J. Hong
@@ -14,9 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM debian:buster
+FROM debian:bookworm-slim
 
-LABEL maintainer="urpylka@gmail.com"
+LABEL maintainer="l.verhovskij@consolinno.de"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -33,16 +34,19 @@ RUN apt-get -q update \
     xz-utils \
     apt-utils \
     gettext-base \
-    bash-completion
+    bash-completion \
+	aptly \
+	&& apt-get clean \
+	&& rm -rf /var/lib/apt/lists/*
 
-RUN curl -sL https://www.aptly.info/pubkey.txt | gpg --dearmor | tee /etc/apt/trusted.gpg.d/aptly.gpg >/dev/null \
-  && echo "deb http://repo.aptly.info/ squeeze main" >> /etc/apt/sources.list
+# RUN curl -sL https://www.aptly.info/pubkey.txt | gpg --dearmor | tee /etc/apt/trusted.gpg.d/aptly.gpg >/dev/null \
+#   && echo "deb http://repo.aptly.info/ squeeze main" >> /etc/apt/sources.list
 
 # Install aptly package
-RUN apt-get -q update \
-  && apt-get -y install aptly=1.5.0 \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/*
+# RUN apt-get -q update \
+#   && apt-get -y install aptly=1.5.0 \
+#   && apt-get clean \
+#   && rm -rf /var/lib/apt/lists/*
 
 # Configure Nginx
 RUN rm /etc/nginx/sites-enabled/*
