@@ -1,16 +1,11 @@
 name: Docker
 
 # If you want configure own CI,
-# setup in Github secrets: DOCKERHUB_LOGIN, DOCKERHUB_TOKEN
+# setup in Github secrets: DOCKER_USER, DOCKER_PASSWORD
 
 on:
   push:
-    # Publish `master` as Docker `latest` image.
-    branches:
-      - master
-      - dev
-
-    # Publish `v1.2.3` tags as releases.
+    # Publish `tag` as Docker versioned image.
     tags:
       - v*
 
@@ -54,11 +49,15 @@ jobs:
         run: docker build . --file Dockerfile --tag image
 
       - name: Log into registry
-        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_LOGIN }} --password-stdin
+        env:
+          DOCKER_USER: ${{secrets.DOCKER_USER}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        run: |
+          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
 
       - name: Push image
         run: |
-          IMAGE_ID=${{ secrets.DOCKERHUB_LOGIN }}/$IMAGE_NAME
+          IMAGE_ID=${{ secrets.DOCKER_USER }}/$IMAGE_NAME
 
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
